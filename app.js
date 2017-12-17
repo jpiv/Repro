@@ -1,4 +1,7 @@
-const SequenceDriver = require('./SequenceDriver.js');
+import React from 'react';
+import ReactDom from 'react-dom';
+import UI from './UI/index.jsx';
+const SequenceDriver = require('./SequenceDriver/index.js');
 
 function addButton(x, y, onclick, title) {
 	const button = document.createElement('button');
@@ -25,6 +28,11 @@ function boot() {
 		addButton(20, 60, recorder.clearRecord.bind(recorder), 'Clear');
 		addButton(20, 100, recorder.record.bind(recorder), 'Record');
 		addButton(20, 140, recorder.stopRecord.bind(recorder), 'Stop');
+		const uiEl = document.createElement('div');
+		uiEl.id = 'ui-main'
+		// Browser compat
+		document.body.prepend(uiEl);
+		ReactDom.render(<UI />, uiEl);
 	});
 }
 window.onload = boot;

@@ -1,5 +1,5 @@
 const _debounce = require('lodash.debounce');
-const { Store } = require('./store.js');
+const { Store } = require('../store.js');
 const Sequence = require('./Sequence.js');
 
 const RECORDER_KEY = 'recorder';

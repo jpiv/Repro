@@ -1,5 +1,5 @@
 const Sequence = require('./Sequence.js');
-const { Store } = require('./store.js');
+const { Store } = require('../store.js');
 
 const PLAYER_KEY = 'player';
 
@@ -32,7 +32,7 @@ module.exports = class Player {
 			Store.updateState(PLAYER_KEY, { currentSequence: sequence });
 		} else {
 			const {
-				index: actionIndex,
+				actionIndex: index,
 				currentSequence
 			} = await Store.getState(PLAYER_KEY);
 			storedActions = currentSequence.actions;

@@ -1,5 +1,5 @@
 const _debounce = require('lodash.debounce');
-const { Store } = require('./store.js');
+const { Store } = require('../store.js');
 const Recorder = require('./Recorder.js');
 const Player = require('./Player.js');
 
