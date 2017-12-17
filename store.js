@@ -25,49 +25,54 @@ export const Store = {
 		return await this.replaceState({});
 	},
 
-	async getState() {
+	async getState(key) {
 		if(this._updateQueue.length) {
-			console.log('here')
 			return await new Promise(resolve => {
 				this._onSync = resolve.bind(this);
 			});
 		} else {
-			return this._state;
+			return key ? this._state[key] : this._state;
 		}
 	},
 
 	async _drainUpdateQueue() {
 		const update = this._updateQueue.shift();
 		if(update && this._updateQueue.length) {
-			await this.replaceState(
-				Object.assign(this._state, update)
-			);
+			this._state[update.key] = Object.assign(
+				this._state[update.key] || {},
+				update.updates
+			)
+			await this.replaceState(this._state);
 			await this._drainUpdateQueue();
 		} else if (update) {
-			await this.replaceState(
-				Object.assign(this._state, update)
-			);
+			this._state[update.key] = Object.assign(
+				this._state[update.key] || {},
+				update.updates
+			)
+			await this.replaceState(this._state);
 			this._onSync(this._state);
 		}
 		return this._state;
 	},
 
-	updateState(updates) {
+	updateState(key, updates) {
+		const update = { key, updates };
 		if(!this._updateQueue.length) {
-			this._updateQueue.push(updates);
+			this._updateQueue.push(update);
 			this._drainUpdateQueue();
 		} else {
-			this._updateQueue.push(updates);
+			this._updateQueue.push(update);
 		}
 	},
 
-	loadState() {
+	loadState(key) {
 		return new Promise((resolve, reject) => {
 			try {
 				this.syncStorage.get('state', payload => {
 					this._state = payload.state;
 					console.log('Loaded state:', this._state);
-					resolve(this._state);
+					if(key) resolve(this._state[key] || {});
+					else resolve(this._state);
 				});
 			} catch(err) {
 				reject(err);
