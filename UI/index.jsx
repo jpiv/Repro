@@ -1,11 +1,10 @@
-// const React = requre('react');
-// const { Component } = React;
 import React, { Component } from 'react';
+import st from './index.scss';
 
 export default class UI extends Component {
 	render() {
 		return (
-			<div>
+			<div className={ st.UI }>
 			</div>
 		);
 	}
