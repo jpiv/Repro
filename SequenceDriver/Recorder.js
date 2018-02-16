@@ -69,6 +69,7 @@ module.exports = class Recorder {
 			currentSequence: this.currentSequence,
 			recording: false,
 		});
+		Store.clearState();
 	}
 
 	recordAction(e) {

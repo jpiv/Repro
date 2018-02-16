@@ -25,9 +25,8 @@ module.exports = class Player {
 
 	async playback(sequence) {
 		console.log('Playing back...');
-		const { currentSequence } = await Store.getState(PLAYER_KEY);
-		let storedActions = sequence.actions;
 		let actionIndex = 0;
+		let storedActions = sequence && sequence.actions;
 		if(!this.playing) {
 			Store.updateState(PLAYER_KEY, { currentSequence: sequence });
 		} else {
@@ -39,7 +38,7 @@ module.exports = class Player {
 			actionIndex = index;
 		}
 		this.playing = true; 
-		await Store.updateState(PLAYER_KEY, { palying: true });
+		await Store.updateState(PLAYER_KEY, { playing: true });
 		const performAction = action => {
 			setTimeout(() => {
 				const target = document.querySelectorAll(action.target)[action.selectorIndex];

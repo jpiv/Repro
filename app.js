@@ -21,18 +21,30 @@ function addButton(x, y, onclick, title) {
 function boot() {
 	const SR = new SequenceDriver();
 	SR.boot().then(({ recorder, player }) => {
-		addButton(20, 20, () => {
-			player.playback(recorder.currentSequence);
-		}, 'Playback');
-		// Clear playback too
-		addButton(20, 60, recorder.clearRecord.bind(recorder), 'Clear');
-		addButton(20, 100, recorder.record.bind(recorder), 'Record');
-		addButton(20, 140, recorder.stopRecord.bind(recorder), 'Stop');
+		// addButton(20, 20, () => {
+		// 	player.playback(recorder.currentSequence);
+		// }, 'Playback');
+		// // Clear playback too
+		// addButton(20, 60, recorder.clearRecord.bind(recorder), 'Clear');
+		// addButton(20, 100, recorder.record.bind(recorder), 'Record');
+		// addButton(20, 140, recorder.stopRecord.bind(recorder), 'Stop');
 		const uiEl = document.createElement('div');
 		uiEl.id = 'ui-main'
 		// Browser compat
 		document.body.prepend(uiEl);
-		ReactDom.render(<UI />, uiEl);
+		ReactDom.render(<UI
+			recorder={ recorder }
+			player={ player }
+		/>, uiEl);
 	});
 }
-window.onload = boot;
+
+if (document.readyState === 'complete') {
+	boot();
+} else {
+	document.onreadystatechange = () => {
+		if (document.readyState === 'interactive' || document.readyState === 'complete') {
+			boot();
+		}
+	};
+}

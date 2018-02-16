@@ -1,7 +1,15 @@
+const path = require('path');
+
 module.exports = {
 	entry: './app.js',
 	output: {
 		filename: 'bundle.js'
+	},
+	resolve: {
+		extensions: ['.js', '.jsx'],
+		alias: {
+			core: path.resolve('UI/core')
+		}
 	},
 	module: {
 		rules: [
@@ -26,7 +34,8 @@ module.exports = {
 				options: {
 					presets: [
 						'babel-preset-react',
-						'babel-preset-es2015'
+						'babel-preset-es2015',
+						'babel-preset-stage-0',
 					]
 				}
 			}
