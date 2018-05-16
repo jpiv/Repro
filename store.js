@@ -1,5 +1,8 @@
+import uuid from 'uuid/v4';
+
 export const Store = {
 	syncStorage: chrome.storage.sync,
+	watchers: {},
 	_state: {},	
 	_updateQueue: [],
 	_onSync: () => {},
@@ -8,10 +11,11 @@ export const Store = {
 		return new Promise((resolve, reject) => {
 			try {
 				this.syncStorage.set({
-					state: newState
+					...newState
 				}, () => {
 					this._state = newState;
 					console.log('Saved state:', this._state);
+					this.notifyWatchers();
 					resolve(this._state);
 				});
 			} catch(err) {
@@ -20,9 +24,27 @@ export const Store = {
 		});
 	},
 
+	notifyWatchers() {
+		this.loadState().then(() => {
+			for(let watcherId in this.watchers) {
+				this.watchers[watcherId](this._state);
+			}
+		})
+	},
+
+	addWatcher(watchFn) {
+		const watcherId = uuid();
+		this.watchers[watcherId] = watchFn;
+		return watcherId;
+	},
+
+	removeWatcher(watcherId) {
+		delete this.watchers[watcherId];
+	},
+
 	async clearState() {
 		console.log('Clearing state...');
-		return await this.replaceState({});
+		return new Promise(resolve => this.syncStorage.clear(() => resolve()));
 	},
 
 	async getState(key) {
@@ -31,7 +53,7 @@ export const Store = {
 				this._onSync = resolve.bind(this);
 			});
 		} else {
-			return key ? this._state[key] : this._state;
+			return key ? this._state[key] || {} : this._state;
 		}
 	},
 
@@ -68,8 +90,8 @@ export const Store = {
 	loadState(key) {
 		return new Promise((resolve, reject) => {
 			try {
-				this.syncStorage.get('state', payload => {
-					this._state = payload.state;
+				this.syncStorage.get(null, payload => {
+					this._state = payload || {};
 					console.log('Loaded state:', this._state);
 					if(key) resolve(this._state[key] || {});
 					else resolve(this._state);
@@ -80,3 +102,5 @@ export const Store = {
 		});
 	}
 };
+
+chrome.storage.onChanged.addListener(Store.notifyWatchers.bind(Store))

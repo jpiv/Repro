@@ -1,14 +1,21 @@
 const path = require('path');
 
 module.exports = {
-	entry: './app.js',
+	entry: {
+		app_bundle: './app.js',
+		popup_bundle: './popup/popup.js'
+	},
+	mode: 'development',
+	devtool: false,
 	output: {
-		filename: 'bundle.js'
+		filename: '[name].js',
+		path: __dirname,
 	},
 	resolve: {
 		extensions: ['.js', '.jsx'],
 		alias: {
-			core: path.resolve('UI/core')
+			core: path.resolve('UI/core'),
+			utils: path.resolve('utils'),
 		}
 	},
 	module: {
@@ -34,7 +41,7 @@ module.exports = {
 				options: {
 					presets: [
 						'babel-preset-react',
-						'babel-preset-es2015',
+						['babel-preset-env', { targets: { chrome: 60 } }],
 						'babel-preset-stage-0',
 					]
 				}

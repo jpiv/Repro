@@ -1,11 +1,11 @@
 .UI {
 	box-sizing: border-box;
-	z-index: 9999999;
+	z-index: 999999999;
 	top: 0px;
 	left: 0px;
 	width: 100vw;
 	height: 100vh;
-	padding: 10px;
+	border: solid white 4px;
 	position: fixed;
 	pointer-events: none;
 }

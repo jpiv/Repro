@@ -5,7 +5,11 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "webpack -w"
+    "dev": "webpack -w",
+    "copy": "cp app_bundle.js dist/ && cp popup_bundle.js dist/ && cp manifest.json dist/ && cp -R popup dist/ && cp fontawesome-all.min.js dist/ && cp background.js dist/",
+    "clean": "rm -rf dist && mkdir dist",
+    "zip": "rm -rf Repro.zip && zip -r Repro.zip ./dist",
+    "prod": "webpack -p && npm run clean && npm run copy && npm run zip"
   },
   "author": "",
   "license": "ISC",
@@ -14,11 +18,13 @@
     "classnames": "^2.2.5",
     "lodash.debounce": "^4.0.8",
     "react": "^16.2.0",
-    "react-dom": "^16.2.0"
+    "react-dom": "^16.2.0",
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.7.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",

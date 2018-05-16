@@ -2,6 +2,7 @@ module.exports = class Sequence {
 	constructor(rawSequence) {
 		rawSequence = rawSequence || {};
 		this.actions = rawSequence.actions || [];
+		this.id = rawSequence.id || new Date().toISOString()
 		if(rawSequence.locked) {
 			this.lock();
 		}
@@ -21,8 +22,8 @@ module.exports = class Sequence {
 
 	addAction(e, pause) {
 		if (this.isLocked()) return;
-		const { selector, selectorIndex, value } = e.target;
-		console.log('Selector:', selector, selectorIndex);
+		const { identifiers, value } = e.target;
+		console.log('Identifiers:', identifiers);
 		const action = {
 			type: e.type,
 			options: {
@@ -30,9 +31,8 @@ module.exports = class Sequence {
 				composed: e.composed,
 				cancelable: e.cancelable,
 			},
-			target: selector,
 			value: value,
-			selectorIndex: selectorIndex,
+			identifiers,
 			pause,
 		};
 		this.actions.push(action);

@@ -15,11 +15,7 @@ module.exports = class SequenceDriver {
 		const els = document.querySelectorAll('*');
 		const elCounts = {};
 		els.forEach(el => {
-			const selector = this.getSelectorFromEl(el);
-			el.selector = selector;
-			elCounts[selector] = elCounts.hasOwnProperty(selector)
-				? elCounts[selector] + 1: 0;
-			el.selectorIndex = elCounts[selector];
+			const selector = this.enrichEl(el);
 			this.recorder.DOMRefreshHook(el);
 		});
 		console.log('Listeners addeed:', els.length);
@@ -32,41 +28,53 @@ module.exports = class SequenceDriver {
 		this.player.start();
 	}
 
+	stop() {
+		this.recorder.stopRecord();	
+		this.player.stopPlaying();
+	}
+
 	createObserver() {
 		let observer = new MutationObserver(mutations => {
 			mutations.forEach(mutation => {
-				if(mutation.attributeName === 'class') {
-					this.addListeners();
-				}
-				this.recorder.mutationHandler(mutation);
+				this.addListeners();
 			});
 		});
 		observer.observe(document, {childList: true, attributes: true, subtree: true});
 	}
 
-	getSelectorFromEl(baseEl) {
+	enrichEl(baseEl) {
 		const createSelectorString = el	=> {
 			if(el !== document) {
 				let selector = el.tagName.toLowerCase();
-				if(el.id) {
-					// selector +=`#${el.id}`;
-				}
-				if(el.className && typeof el.className === 'string') {
-					selector +=`[class='${el.className}']`;
+				if(el.classList.length) {
+					selector +=	`.${Array.from(el.classList).join('.')}`;
+					selector = selector.replace(':', '\\:');
 				}
 				return selector;
 			}
 		}
-		const grandParentSelector = baseEl.parentNode.parentNode
-			&& createSelectorString(baseEl.parentNode.parentNode);
-		const parentSelector = baseEl.parentNode
-			&& createSelectorString(baseEl.parentNode);
 		const baseSelector = createSelectorString(baseEl);
-		return [
-			grandParentSelector,
+		// Primary identifiers
+		const type = baseEl.tagName.toLowerCase();
+		// Parent selector
+		const parentSelector = baseEl.parentNode
+			&& `${createSelectorString(baseEl.parentNode)}>${baseSelector}`;
+		// Grand parent selector
+		const grandParentSelector = baseEl.parentNode.parentNode
+			&& `${createSelectorString(baseEl.parentNode.parentNode)}>${parentSelector}`;
+		// Attribute list
+		const attrs = Array.from(baseEl.attributes, ({ name, value }) => ({ name, value }));
+
+		// Secondary identifiers
+		const text = baseEl.children.length || baseEl.textContent;
+
+		baseEl.identifiers = {
+			type,
 			parentSelector,
-			baseSelector
-		].filter(node => !!node).join('>');
+			grandParentSelector,
+			attrs,
+			text,
+		};
 	}
 
 	async boot() {

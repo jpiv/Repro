@@ -1,6 +1,7 @@
 const _debounce = require('lodash.debounce');
 const { Store } = require('../store.js');
 const Sequence = require('./Sequence.js');
+const SequenceStash = require('./SequenceStash.js');
 
 const RECORDER_KEY = 'recorder';
 
@@ -10,7 +11,7 @@ module.exports = class Recorder {
 		this.outdated = false;
 		this.pause = 0;
 		this.pauseTimer = null;
-		this.currentSequence = new Sequence();
+		this.currentSequence = null;
 		this.DOMRefresh = DOMRefresh;
 		this.handleChange = _debounce(this.eventFired.bind(this), 100)
 		this.handleClick = _debounce(this.eventFired.bind(this), 100)
@@ -23,18 +24,17 @@ module.exports = class Recorder {
 			this.pause += 100;
 		}, 100);
 		this.recording = true;
+		this.currentSequence = new Sequence();
 		Store.updateState(RECORDER_KEY, { recording: true });
 	}
 
 	mutationHandler(mutation) {
-		if(mutation.attributeName === 'class') {
-			this.outdated = true;
-		}
+		this.outdated = true;
 	}
 
 	DOMRefreshHook(el) {
-		el.removeEventListener('click', this.handleClick);
-		el.addEventListener('click', this.handleClick);
+		el.removeEventListener('mousedown', this.handleClick);
+		el.addEventListener('mousedown', this.handleClick);
 
 		el.removeEventListener('change', this.handleChange);
 		el.addEventListener('change', this.handleChange);
@@ -58,29 +58,26 @@ module.exports = class Recorder {
 		this.recording = false;
 		this.pauseTimer && clearInterval(this.pauseTimer);
 		this.pause = 0;
-		Store.updateState(RECORDER_KEY, { recording: false, currentSequence: this.currentSequence });
+		this.currentSequence && SequenceStash.add(this.currentSequence);
 		console.log('Stopped recording');
-	}
-
-	clearRecord() {
-		this.stopRecord();
-		this.currentSequence = new Sequence();
+		this.currentSequence = null;
 		Store.updateState(RECORDER_KEY, {
 			currentSequence: this.currentSequence,
 			recording: false,
 		});
-		Store.clearState();
 	}
 
 	recordAction(e) {
-		const action = this.currentSequence.addAction(e, this.pause);
-		Store.updateState(RECORDER_KEY, { currentSequence: this.currentSequence });
-		this.pause = 0;
-		if(this.outdated) {
-			// TODO: Cancel pending call from debounce
-			this.DOMRefresh();
+		if(!e.target.matches('div#ui-main *')) {
+			const action = this.currentSequence.addAction(e, this.pause);
+			Store.updateState(RECORDER_KEY, { currentSequence: this.currentSequence });
+			this.pause = 0;
+			if(this.outdated) {
+				// TODO: Cancel pending call from debounce
+				this.DOMRefresh();
+			}
+			console.log('Action Performed:', e.target, action);
 		}
-		console.log('Action Performed:', e.target, action);
 	}
 
 	eventFired(e) {

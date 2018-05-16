@@ -10,9 +10,9 @@ export default class IconButton extends Component {
     };
 
     render() {
-        const { iconClass } = this.props;
+        const { iconClass, onClick } = this.props;
         return (
-            <div className={ st.IconButton }>
+            <div onClick={ onClick } className={ st.IconButton }>
                 <i className={ classnames(iconClass, st.icon) } />
             </div>
         );
