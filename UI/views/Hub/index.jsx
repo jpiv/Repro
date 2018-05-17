@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import classnames from 'classnames';
 
 import IconButton from 'core/IconButton';
+import Stash from 'views/Stash';
 import { Store } from '../../../store.js';
-import SequenceStash from '../../../SequenceDriver/SequenceStash.js';
 import st from './index.scss';
 
 
@@ -28,11 +28,19 @@ const RecordButton = ({ onClick }) =>
         onClick={ onClick }
     />;
 
+const ShowStash = ({ onClick }) =>
+    <IconButton
+        iconClass={ `fas fa-angle-down` }
+        onClick={ onClick }
+    />;
+
 export default class Hub extends Component {
     constructor(props) {
         super(props);
         this.state = {
             color: '',
+            isStashShown: false,
+            sq: null,
         };
         this.watcherId = null;
     }
@@ -62,22 +70,38 @@ export default class Hub extends Component {
         this.setState({ color });
     }
 
+    handleSqSelect(sq) {
+        console.log('Selecting Sequence:', sq)
+        this.setState({ sq });
+    }
+
+    handleShowStashClick() {
+        const { isStashShown } = this.state;
+        this.setState({ isStashShown: !isStashShown });
+    }
+
     render() {
-        const { color } = this.state;
+        const { color, isStashShown } = this.state;
         const { SequenceDriver, recorder, player } = this.props;
         const hubContentStyle = {
             boxShadow: `inset 0px 0px 10px 0px ${color}`,
         };
+        const stashClass = classnames(st.stashContainer, { [st.show]: isStashShown });
         return (
             <div className={ st.Hub }>
                 <div style={ hubContentStyle } className={ st.hubContent }>
                     <div className={ st.buttonContainer }>
                         <PlayButton onClick={ () => {
-                            player.playback(SequenceStash.getMostRecent())
+                            const { sq } = this.state;
+                            player.playback(sq)
                         } } />
                         <StopButton onClick={ SequenceDriver.stop.bind(SequenceDriver) } />
                         <ClearButton onClick={ recorder.stopRecord.bind(recorder) } />
                         <RecordButton onClick={ recorder.record.bind(recorder) } />
+                        <ShowStash onClick={ this.handleShowStashClick.bind(this) } />
+                        <div className={ stashClass }>
+                            <Stash onSqSelect={ this.handleSqSelect.bind(this) } />
+                        </div>
                     </div>
                 </div>
             </div>

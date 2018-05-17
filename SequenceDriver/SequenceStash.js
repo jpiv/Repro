@@ -4,7 +4,7 @@ import { Store } from '../store.js';
 const IDS_KEY = 'sequenceIds';
 
 const SequenceStash = {
-    _ids: [],
+    ids: [],
     sequences: {},
 
     async _getIds() {
@@ -12,16 +12,19 @@ const SequenceStash = {
     },
 
     async load() {
-        this._ids = await this._getIds();
-        for (let id of this._ids) {
+        this.ids = await this._getIds();
+        for (let id of this.ids) {
             this.sequences[id] = new Sequence((await Store.getState(id)).sequence);
         }
     },
 
     add(sequence) {
+        if (this.sequences[sequence.id]) {
+            sequence.id += '(Copy)';
+        }
         Store.updateState(sequence.id, { sequence });
-        this._ids.push(sequence.id);
-        Store.updateState(IDS_KEY, { ids: this._ids });
+        this.ids.push(sequence.id);
+        Store.updateState(IDS_KEY, { ids: this.ids });
         this.sequences[sequence.id] = sequence;
     },
 

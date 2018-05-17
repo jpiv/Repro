@@ -24,7 +24,7 @@ module.exports = class Recorder {
 			this.pause += 100;
 		}, 100);
 		this.recording = true;
-		this.currentSequence = new Sequence();
+		this.currentSequence = new Sequence(null, window.location.host);
 		Store.updateState(RECORDER_KEY, { recording: true });
 	}
 

@@ -1,11 +1,17 @@
 module.exports = class Sequence {
-	constructor(rawSequence) {
+	constructor(rawSequence, host) {
 		rawSequence = rawSequence || {};
 		this.actions = rawSequence.actions || [];
-		this.id = rawSequence.id || new Date().toISOString()
+		this.id = rawSequence.id || this.createId(host);
 		if(rawSequence.locked) {
 			this.lock();
 		}
+	}
+
+	createId(host='') {
+		const now = new Date();
+		const nowString = now.toISOString().split('T')[0];
+		return `${host}_${nowString}`;
 	}
 
 	lock() {

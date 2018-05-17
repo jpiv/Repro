@@ -16,6 +16,8 @@ module.exports = {
 		alias: {
 			core: path.resolve('UI/core'),
 			utils: path.resolve('utils'),
+			views: path.resolve('UI/views'),
+			SD: path.resolve('SequenceDriver'),
 		}
 	},
 	module: {

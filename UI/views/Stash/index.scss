@@ -1,0 +1,11 @@
+.Stash {
+    border-top: solid 1px black;
+    margin-top: 2px;
+    .sequence {
+        cursor: pointer;
+        padding: 2px 6px;
+        &:hover {
+            background-color: #6BEC6E;
+        }
+    }    
+}
