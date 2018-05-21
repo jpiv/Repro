@@ -1,3 +1,5 @@
+import uuid from 'uuid/v1';
+
 import Sequence from './Sequence.js';
 import { Store } from '../store.js';
 
@@ -18,14 +20,12 @@ const SequenceStash = {
         }
     },
 
-    add(sequence) {
-        if (this.sequences[sequence.id]) {
-            sequence.id += '(Copy)';
-        }
-        Store.updateState(sequence.id, { sequence });
-        this.ids.push(sequence.id);
+    async add(sequence) {
+        const key = uuid();
+        Store.updateState(key, { sequence });
+        this.ids.push(key);
         Store.updateState(IDS_KEY, { ids: this.ids });
-        this.sequences[sequence.id] = sequence;
+        this.sequences[key] = sequence;
     },
 
     getMostRecent() {

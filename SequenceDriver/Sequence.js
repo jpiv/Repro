@@ -2,13 +2,13 @@ module.exports = class Sequence {
 	constructor(rawSequence, host) {
 		rawSequence = rawSequence || {};
 		this.actions = rawSequence.actions || [];
-		this.id = rawSequence.id || this.createId(host);
+		this.name = rawSequence.name || this.createName(host);
 		if(rawSequence.locked) {
 			this.lock();
 		}
 	}
 
-	createId(host='') {
+	createName(host='') {
 		const now = new Date();
 		const nowString = now.toISOString().split('T')[0];
 		return `${host}_${nowString}`;
@@ -37,6 +37,7 @@ module.exports = class Sequence {
 				composed: e.composed,
 				cancelable: e.cancelable,
 			},
+			keyCode: e.keyCode,
 			value: value,
 			identifiers,
 			pause,

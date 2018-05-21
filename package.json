@@ -17,6 +17,7 @@
     "babel-polyfill": "^6.26.0",
     "classnames": "^2.2.5",
     "lodash.debounce": "^4.0.8",
+    "lz-string": "^1.4.4",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "uuid": "^3.2.1"

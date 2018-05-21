@@ -15,6 +15,7 @@ module.exports = class Recorder {
 		this.DOMRefresh = DOMRefresh;
 		this.handleChange = _debounce(this.eventFired.bind(this), 100)
 		this.handleClick = _debounce(this.eventFired.bind(this), 100)
+		this.handleKeyPress = _debounce(this.eventFired.bind(this), 100)
 	}
 
 	record() {
@@ -24,7 +25,7 @@ module.exports = class Recorder {
 			this.pause += 100;
 		}, 100);
 		this.recording = true;
-		this.currentSequence = new Sequence(null, window.location.host);
+		this.currentSequence = this.currentSequence || new Sequence(null, window.location.host);
 		Store.updateState(RECORDER_KEY, { recording: true });
 	}
 
@@ -38,6 +39,9 @@ module.exports = class Recorder {
 
 		el.removeEventListener('change', this.handleChange);
 		el.addEventListener('change', this.handleChange);
+
+		el.removeEventListener('keydown', this.handleKeyPress);
+		el.addEventListener('keydown', this.handleKeyPress);
 	}
 
 	async boot() {
@@ -54,14 +58,14 @@ module.exports = class Recorder {
 		if (this.recording) this.record();
 	}
 
-	stopRecord() {
+	async stopRecord() {
 		this.recording = false;
 		this.pauseTimer && clearInterval(this.pauseTimer);
 		this.pause = 0;
-		this.currentSequence && SequenceStash.add(this.currentSequence);
+		this.currentSequence && await SequenceStash.add(this.currentSequence);
 		console.log('Stopped recording');
 		this.currentSequence = null;
-		Store.updateState(RECORDER_KEY, {
+		await Store.updateState(RECORDER_KEY, {
 			currentSequence: this.currentSequence,
 			recording: false,
 		});

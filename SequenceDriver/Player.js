@@ -102,7 +102,6 @@ module.exports = class Player {
 		await Store.updateState(PLAYER_KEY, { playing: true });
 		const performAction = action => {
 			this.playing && setTimeout(() => {
-				console.log(action)
 				const target = this.getElement(action.identifiers);
 				console.log(action)
 				console.log('Clicking:', target);
@@ -111,10 +110,20 @@ module.exports = class Player {
 					actionIndex: actionIndex,
 				});
 				target.value = action.value
-				const EventConstructor = action.type === 'mousedown'
-					? MouseEvent : Event;
-				target.dispatchEvent(
-					new EventConstructor('click', action.options));
+				let event = null;
+				switch(action.type) {
+					case 'mousedown':
+						event = new MouseEvent('click', action.options);
+						break;
+					case 'keydown':
+						event = new KeyboardEvent('keydown', { keyCode: action.keyCode });
+						break;
+					default:
+						event = new Event(action.type, action.options);
+						break;
+						
+				}
+				target.dispatchEvent(event);
 				if(actionIndex < storedActions.length) {
 					performAction(storedActions[actionIndex]);
 				} else {

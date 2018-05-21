@@ -1,4 +1,5 @@
 import uuid from 'uuid/v4';
+import lzString from 'lz-string';
 
 export const Store = {
 	syncStorage: chrome.storage.sync,
@@ -11,7 +12,8 @@ export const Store = {
 		return new Promise((resolve, reject) => {
 			try {
 				this.syncStorage.set({
-					...newState
+					// ...newState
+					...this._compressState(newState)
 				}, () => {
 					this._state = newState;
 					console.log('Saved state:', this._state);
@@ -81,9 +83,10 @@ export const Store = {
 		const update = { key, updates };
 		if(!this._updateQueue.length) {
 			this._updateQueue.push(update);
-			this._drainUpdateQueue();
+			return this._drainUpdateQueue();
 		} else {
 			this._updateQueue.push(update);
+			return this.getState(key);
 		}
 	},
 
@@ -91,8 +94,10 @@ export const Store = {
 		return new Promise((resolve, reject) => {
 			try {
 				this.syncStorage.get(null, payload => {
-					this._state = payload || {};
+					this._state = this._decompressState(payload || {});
+					// this._state = payload || {};
 					console.log('Loaded state:', this._state);
+					console.log(payload)
 					if(key) resolve(this._state[key] || {});
 					else resolve(this._state);
 				});
@@ -100,6 +105,22 @@ export const Store = {
 				reject(err);
 			}
 		});
+	},
+
+	_compressState(state) {
+		const compressedState = {};
+		for(let key in state) {
+			compressedState[key] = lzString.compressToUTF16(JSON.stringify(state[key]));
+		}
+		return compressedState;
+	},
+
+	_decompressState(state) {
+		const decompressedState = {};
+		for(let key in state) {
+			decompressedState[key] = JSON.parse(lzString.decompressFromUTF16(state[key]));
+		}
+		return decompressedState
 	}
 };
 

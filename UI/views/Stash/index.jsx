@@ -19,7 +19,7 @@ export default class Stash extends Component {
                 key={ id }
                 className={ st.sequence }
                 onClick={ this.handleSqSelect.bind(this, id) }>
-                { id }
+                { SequenceStash.sequences[id].name }
             </div>
         );
     }
