@@ -12,7 +12,6 @@ export const Store = {
 		return new Promise((resolve, reject) => {
 			try {
 				this.syncStorage.set({
-					// ...newState
 					...this._compressState(newState)
 				}, () => {
 					this._state = newState;
@@ -95,7 +94,6 @@ export const Store = {
 			try {
 				this.syncStorage.get(null, payload => {
 					this._state = this._decompressState(payload || {});
-					// this._state = payload || {};
 					console.log('Loaded state:', this._state);
 					console.log(payload)
 					if(key) resolve(this._state[key] || {});
