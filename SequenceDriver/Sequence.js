@@ -1,8 +1,10 @@
 module.exports = class Sequence {
-	constructor(rawSequence, host) {
+	constructor(rawSequence, location) {
 		rawSequence = rawSequence || {};
+		location = location || window.location;
 		this.actions = rawSequence.actions || [];
-		this.name = rawSequence.name || this.createName(host);
+		this.name = rawSequence.name || this.createName(location.host);
+		this.origin = rawSequence.origin || location.href;
 		if(rawSequence.locked) {
 			this.lock();
 		}

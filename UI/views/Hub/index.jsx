@@ -19,7 +19,7 @@ const StopButton = ({ onClick }) =>
     />;
 const ClearButton = ({ onClick }) =>
     <IconButton
-        iconClass="far fa-times-circle"
+        iconClass="far fa-pause-circle"
         onClick={ onClick }
     />;
 const RecordButton = ({ onClick }) =>
@@ -37,10 +37,11 @@ const ShowStash = ({ onClick }) =>
 export default class Hub extends Component {
     constructor(props) {
         super(props);
+        const { player } = props;
         this.state = {
             color: '',
             isStashShown: false,
-            sq: null,
+            sq: player.currentSequence || null,
         };
         this.watcherId = null;
     }
@@ -70,6 +71,11 @@ export default class Hub extends Component {
         this.setState({ color });
     }
 
+    getStatus() {
+        const { sq } = this.state;
+        return sq ? sq.name : 'No sequence selected'
+    }
+
     handleSqSelect(sq) {
         console.log('Selecting Sequence:', sq)
         this.setState({ sq });
@@ -90,15 +96,20 @@ export default class Hub extends Component {
         return (
             <div className={ st.Hub }>
                 <div style={ hubContentStyle } className={ st.hubContent }>
-                    <div className={ st.buttonContainer }>
-                        <PlayButton onClick={ () => {
-                            const { sq } = this.state;
-                            player.playback(sq)
-                        } } />
-                        <StopButton onClick={ SequenceDriver.stop.bind(SequenceDriver) } />
-                        <ClearButton onClick={ recorder.stopRecord.bind(recorder) } />
-                        <RecordButton onClick={ recorder.record.bind(recorder) } />
-                        <ShowStash onClick={ this.handleShowStashClick.bind(this) } />
+                    <div className={ st.controlTray }>
+                        <div className={ st.statusDisplay }>
+                            { this.getStatus() }
+                        </div>
+                        <div className={ st.buttonContainer }>
+                            <PlayButton onClick={ () => {
+                                const { sq } = this.state;
+                                player.playback(sq)
+                            } } />
+                            <StopButton onClick={ SequenceDriver.stop.bind(SequenceDriver) } />
+                            <ClearButton onClick={ recorder.stopRecord.bind(recorder) } />
+                            <RecordButton onClick={ recorder.record.bind(recorder) } />
+                            <ShowStash onClick={ this.handleShowStashClick.bind(this) } />
+                        </div>
                         <div className={ stashClass }>
                             <Stash onSqSelect={ this.handleSqSelect.bind(this) } />
                         </div>

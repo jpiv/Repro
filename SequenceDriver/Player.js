@@ -7,7 +7,7 @@ const PLAYER_KEY = 'player';
 module.exports = class Player {
 	constructor() {
 		this.playing = false;
-		this.currentSequence = new Sequence();
+		this.currentSequence = null;
 	}
 
 	start() {
@@ -90,6 +90,7 @@ module.exports = class Player {
 		let storedActions = sequence && sequence.actions;
 		if(!this.playing) {
 			Store.updateState(PLAYER_KEY, { currentSequence: sequence });
+			window.location.href = sequence.origin;
 		} else {
 			const {
 				actionIndex: index,
