@@ -1,12 +1,35 @@
+// 2x the icon padding
+$detailsWidth: 28px;
 .Stash {
     border-top: solid 1px black;
     margin-top: 2px;
     .sequence {
+        position: relative;
         cursor: pointer;
-        padding: 2px 6px;
         font-size: 12px;
+        border-bottom: 1px solid black;
+    }
+    .sequenceName {
+        display: inline-block;
+        padding: 10px;
+        margin-right: $detailsWidth;
+        width: calc(100% - #{$detailsWidth});
         &:hover {
             background-color: #6BEC6E;
         }
-    }    
+    }
+    .sequenceDetails {
+        position: absolute;
+        display: inline-block;
+        font-size: 14px;
+        height: 100%;
+        right: 0px;
+        padding: 0px ($detailsWidth / 2);
+        border-left: 1px solid rgba(0, 0, 0, 0.3);
+        .detailsIcon {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
 }

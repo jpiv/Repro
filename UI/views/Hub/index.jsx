@@ -34,6 +34,12 @@ const ShowStash = ({ onClick }) =>
         onClick={ onClick }
     />;
 
+const HideStash = ({ onClick }) =>
+    <IconButton
+        iconClass={ `fas fa-angle-up` }
+        onClick={ onClick }
+    />;
+
 export default class Hub extends Component {
     constructor(props) {
         super(props);
@@ -81,7 +87,7 @@ export default class Hub extends Component {
         this.setState({ sq });
     }
 
-    handleShowStashClick() {
+    handleToggleStashClick() {
         const { isStashShown } = this.state;
         this.setState({ isStashShown: !isStashShown });
     }
@@ -108,7 +114,10 @@ export default class Hub extends Component {
                             <StopButton onClick={ SequenceDriver.stop.bind(SequenceDriver) } />
                             <ClearButton onClick={ recorder.stopRecord.bind(recorder) } />
                             <RecordButton onClick={ recorder.record.bind(recorder) } />
-                            <ShowStash onClick={ this.handleShowStashClick.bind(this) } />
+                            { isStashShown ?
+                                <HideStash onClick={ this.handleToggleStashClick.bind(this) } />
+                                : <ShowStash onClick={ this.handleToggleStashClick.bind(this) } />
+                            }
                         </div>
                         <div className={ stashClass }>
                             <Stash onSqSelect={ this.handleSqSelect.bind(this) } />
