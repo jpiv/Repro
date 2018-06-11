@@ -90,7 +90,7 @@ module.exports = class Player {
 		let storedActions = sequence && sequence.actions;
 		if(!this.playing) {
 			Store.updateState(PLAYER_KEY, { currentSequence: sequence });
-			window.location.href = sequence.origin;
+			// window.location.href = sequence.origin;
 		} else {
 			const {
 				actionIndex: index,
@@ -113,18 +113,36 @@ module.exports = class Player {
 				target.value = action.value
 				let event = null;
 				switch(action.type) {
-					case 'mousedown':
+					case 'mouseover':
+						event = new MouseEvent('mouseover', action.options);
+						break;
+					case 'mouseout':
+						event = new MouseEvent('mouseout', action.options);
+						break;
+					case 'mouseup':
+						event = new MouseEvent('mouseup', action.options);
+						break;
+					case 'click':
 						event = new MouseEvent('click', action.options);
 						break;
+					case 'focus':
+						target.focus()
+						break;
+					case 'blur':
+						target.blur()
+						break;
 					case 'keydown':
-						event = new KeyboardEvent('keydown', { keyCode: action.keyCode });
+						event = new KeyboardEvent('keydown', action.options);
+						break;
+					case 'keyup':
+						event = new KeyboardEvent('keyup', action.options);
 						break;
 					default:
 						event = new Event(action.type, action.options);
 						break;
 						
 				}
-				target.dispatchEvent(event);
+				event && target.dispatchEvent(event);
 				if(actionIndex < storedActions.length) {
 					performAction(storedActions[actionIndex]);
 				} else {

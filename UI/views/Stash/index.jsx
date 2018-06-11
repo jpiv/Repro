@@ -3,15 +3,27 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
 import SequenceStash from 'SD/SequenceStash.js';
+import SequenceDetails from 'views/SequenceDetails'
 import st from './index.scss';
 
 export default class Stash extends Component {
     static propTypes = { onSqSelect: PropTypes.func };
 
+    constructor(props) {
+        super(props)
+        this.state = {
+            showDetails: '',
+        }
+    }
+
     handleSqSelect(id) {
         const { onSqSelect } = this.props;
         const sq = SequenceStash.sequences[id];
         onSqSelect(sq);
+    }
+
+    handleSqDetailsClick(id) {
+        this.setState({ showDetails: id })
     }
 
     renderSequenceList() {
@@ -24,7 +36,7 @@ export default class Stash extends Component {
                     onClick={ this.handleSqSelect.bind(this, id) }>
                     { SequenceStash.sequences[id].name }
                 </div>
-                <div className={ st.sequenceDetails }>
+                <div className={ st.sequenceDetails } onClick={ this.handleSqDetailsClick.bind(this, id) }>
                     <i className={
                         classnames(
                             st.detailsIcon,
@@ -37,10 +49,17 @@ export default class Stash extends Component {
         );
     }
 
+    renderSequenceDetails() {
+        const { showDetails } = this.state
+        return <SequenceDetails id={ showDetails } />
+    }
+
     render() {
+        const { showDetails } = this.state
+        const renderDetails = showDetails && SequenceStash.sequences[showDetails]
         return (
             <div className={ st.Stash }>
-                { this.renderSequenceList() }
+                { renderDetails ? this.renderSequenceDetails() : this.renderSequenceList() }
             </div>
         );
     }

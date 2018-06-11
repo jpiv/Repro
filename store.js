@@ -1,6 +1,8 @@
 import uuid from 'uuid/v4';
 import lzString from 'lz-string';
 
+const SHARD_COUNT = 5
+
 export const Store = {
 	syncStorage: chrome.storage.sync,
 	watchers: {},
@@ -95,7 +97,6 @@ export const Store = {
 				this.syncStorage.get(null, payload => {
 					this._state = this._decompressState(payload || {});
 					console.log('Loaded state:', this._state);
-					console.log(payload)
 					if(key) resolve(this._state[key] || {});
 					else resolve(this._state);
 				});
@@ -105,10 +106,27 @@ export const Store = {
 		});
 	},
 
+	_getShardId(key, shardIndex) {
+		return `$!${key}S${shardIndex}`
+	},
+
+	_isShardId(key) {
+		return key.substr(0, 2) === '$!'
+	},
+
 	_compressState(state) {
 		const compressedState = {};
 		for(let key in state) {
-			compressedState[key] = lzString.compressToUTF16(JSON.stringify(state[key]));
+			const shards = [];
+			const compressedItem = lzString.compressToUTF16(JSON.stringify(state[key]));
+			const shardSize = Math.ceil(compressedItem.length / SHARD_COUNT);
+			for(let i = 0; i < SHARD_COUNT; i ++) {
+				const shard = compressedItem.substr(i * shardSize, shardSize)
+				const shardId = this._getShardId(key, i)
+				compressedState[shardId] = shard
+				shards.push(shardId)
+			}
+			compressedState[key] = { shards }
 		}
 		return compressedState;
 	},
@@ -116,7 +134,15 @@ export const Store = {
 	_decompressState(state) {
 		const decompressedState = {};
 		for(let key in state) {
-			decompressedState[key] = JSON.parse(lzString.decompressFromUTF16(state[key]));
+			if (!this._isShardId(key)) {
+				const shards = state[key].shards;
+				const reconstructedShard = JSON.parse(
+					lzString.decompressFromUTF16(
+						shards.map(shardId => state[shardId]).join('')
+					)
+				)
+				decompressedState[key] = reconstructedShard
+			}
 		}
 		return decompressedState
 	}

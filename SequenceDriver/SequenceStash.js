@@ -31,7 +31,7 @@ const SequenceStash = {
     getMostRecent() {
         const sqKeys = Object.keys(this.sequences);
         return this.sequences[sqKeys[sqKeys.length - 1]]; 
-    }
+    },
 };
 
 module.exports = SequenceStash;

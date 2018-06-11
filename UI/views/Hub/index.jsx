@@ -46,7 +46,7 @@ export default class Hub extends Component {
         const { player } = props;
         this.state = {
             color: '',
-            isStashShown: false,
+            isControlTrayShown: false,
             sq: player.currentSequence || null,
         };
         this.watcherId = null;
@@ -88,21 +88,21 @@ export default class Hub extends Component {
     }
 
     handleToggleStashClick() {
-        const { isStashShown } = this.state;
-        this.setState({ isStashShown: !isStashShown });
+        const { isControlTrayShown } = this.state;
+        this.setState({ isControlTrayShown: !isControlTrayShown });
     }
 
     render() {
-        const { color, isStashShown } = this.state;
+        const { color, isControlTrayShown } = this.state;
         const { SequenceDriver, recorder, player } = this.props;
         const hubContentStyle = {
             boxShadow: `inset 0px 0px 10px 0px ${color}`,
         };
-        const stashClass = classnames(st.stashContainer, { [st.show]: isStashShown });
+        const controlTrayClass = classnames(st.controlTray, { [st.show]: isControlTrayShown });
         return (
             <div className={ st.Hub }>
                 <div style={ hubContentStyle } className={ st.hubContent }>
-                    <div className={ st.controlTray }>
+                    <div className={ st.controlPanel }>
                         <div className={ st.statusDisplay }>
                             { this.getStatus() }
                         </div>
@@ -114,12 +114,12 @@ export default class Hub extends Component {
                             <StopButton onClick={ SequenceDriver.stop.bind(SequenceDriver) } />
                             <ClearButton onClick={ recorder.stopRecord.bind(recorder) } />
                             <RecordButton onClick={ recorder.record.bind(recorder) } />
-                            { isStashShown ?
+                            { isControlTrayShown ?
                                 <HideStash onClick={ this.handleToggleStashClick.bind(this) } />
                                 : <ShowStash onClick={ this.handleToggleStashClick.bind(this) } />
                             }
                         </div>
-                        <div className={ stashClass }>
+                        <div className={ controlTrayClass }>
                             <Stash onSqSelect={ this.handleSqSelect.bind(this) } />
                         </div>
                     </div>

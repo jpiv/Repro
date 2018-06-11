@@ -5,24 +5,26 @@ const Player = require('./Player.js');
 
 module.exports = class SequenceDriver {
 	constructor() {
-		this.recorder = new Recorder(this._addListeners.bind(this));
+		this.recorder = new Recorder(this.addListeners.bind(this));
 		this.player = new Player();
 		this.currentPlayback = null;
-		this.addListeners = _debounce(this._addListeners.bind(this), 250);
 	}
 
-	_addListeners() {
-		const els = document.querySelectorAll('*');
-		const elCounts = {};
-		els.forEach(el => {
-			const selector = this.enrichEl(el);
-			this.recorder.DOMRefreshHook(el);
-		});
+	addListeners(els) {
+		els.forEach(el => this.addListener.bind(this));
 		console.log('Listeners addeed:', els.length);
 	}
 
+	addListener(el) {
+		if(el.nodeName.charAt(0) !== '#') {
+			const selector = this.enrichEl(el);
+			this.recorder.DOMRefreshHook(el);
+		}
+	}
+
 	start() {
-		this._addListeners();
+		const allEls = document.querySelectorAll('*');
+		this.addListeners(allEls);
 		this.createObserver();
 		this.recorder.start();
 		this.player.start();
@@ -36,10 +38,19 @@ module.exports = class SequenceDriver {
 	createObserver() {
 		let observer = new MutationObserver(mutations => {
 			mutations.forEach(mutation => {
-				this.addListeners();
+				this.addListener(mutation.target);
+				if (mutation.addedNodes && mutation.addedNodes.length) {
+					mutation.addedNodes.forEach(node => {
+						if(node.nodeName.charAt(0) !== '#') {
+							this.addListener(node)
+							const childNodes = node.querySelectorAll('*')
+							this.addListeners(childNodes)
+						}
+					})
+				}
 			});
 		});
-		observer.observe(document, {childList: true, attributes: true, subtree: true});
+		observer.observe(document, { childList: true, attributes: true, subtree: true });
 	}
 
 	enrichEl(baseEl) {
@@ -60,13 +71,13 @@ module.exports = class SequenceDriver {
 		const parentSelector = baseEl.parentNode
 			&& `${createSelectorString(baseEl.parentNode)}>${baseSelector}`;
 		// Grand parent selector
-		const grandParentSelector = baseEl.parentNode.parentNode
+		const grandParentSelector = baseEl.parentNode && baseEl.parentNode.parentNode
 			&& `${createSelectorString(baseEl.parentNode.parentNode)}>${parentSelector}`;
 		// Attribute list
 		const attrs = Array.from(baseEl.attributes, ({ name, value }) => ({ name, value }));
 
 		// Secondary identifiers
-		const text = baseEl.children.length || baseEl.textContent;
+		const text = baseEl.textContent;
 
 		baseEl.identifiers = {
 			type,
