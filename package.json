@@ -15,7 +15,6 @@
   "license": "ISC",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "bson": "^1.0.9",
     "classnames": "^2.2.5",
     "lodash.debounce": "^4.0.8",
     "lz-string": "^1.4.4",
